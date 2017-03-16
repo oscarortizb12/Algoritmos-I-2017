@@ -1,0 +1,57 @@
+#include "stdafx.h"
+#include <iostream>
+#include "conio.h"
+#include "math.h"
+
+using namespace std;
+float discriminante(float a,float b,float c);
+
+void main()
+{
+	float a,b,c,disc,aux,raiz,aux2,x1,x2;
+	cout<<"Ingrese el valor de A: ";
+	cin>>a;
+	cout<<"Ingrese el valor de B: ";
+	cin>>b;
+	cout<<"Ingrese el valor de C: ";
+	cin>>c;
+	disc=discriminante(a,b,c);
+	raiz=sqrt(disc);
+	aux=disc*(-1);
+	aux2=sqrt(aux);
+	if(a==0)
+		cout<<"Tiene infinitas soluciones.";
+	else
+	{
+		if(disc<0)
+		{
+			cout<<"X1:"<<(-b)<<" + "<<aux2<<" i / "<<(2*a)<<endl;
+			cout<<"X2:"<<(-b)<<" - "<<aux2<<" i / "<<(2*a)<<endl;
+		}
+		else
+		{
+			if(raiz==0)
+			{
+				x1=((-b)/(2*a));
+				cout<<"Solucion unica: "<<x1<<endl;
+			}
+			else
+			{
+			x1=((-b)+raiz)/(2*a);
+			cout<<"El resultado de X1: "<<x1<<endl;
+			x2=((-b)-raiz)/(2*a);
+			cout<<"El resultado de X2: "<<x2<<endl;
+			}
+		}
+	}
+
+
+	getch();
+}
+
+float discriminante(float a,float b,float c)
+{
+	float s;
+	s=((b*b)-4*a*c);
+	return s;
+}
