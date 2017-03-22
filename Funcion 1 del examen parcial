@@ -1,0 +1,44 @@
+#include "stdafx.h"
+#include <iostream>
+#include "conio.h"
+
+using namespace std;
+int zonaderiesgo(int sueldo,int moroso, int historico, int hipoteca);
+
+void main()
+{
+	int sueldo, moroso, historico, hipoteca,riesgo;
+	cout<<"Ingrese su sueldo: "<<endl;
+	cin>>sueldo;
+	cout<<"Ingrese si es moroso: "<<endl<<"1. Si"<<endl<<"2. No"<<endl;
+	cin>>moroso;
+	cout<<"Ingrese si tiene historial: "<<endl<<"1. Si"<<endl<<"2. No"<<endl;
+	cin>>historico;
+	cout<<"Ingrese si tiene hipoteca: "<<endl<<"1. Si"<<endl<<"2. No"<<endl;
+	cin>>hipoteca;
+	riesgo= zonaderiesgo(sueldo,moroso,historico,hipoteca);
+	getch();
+}
+
+int zonaderiesgo(int sueldo,int moroso, int historico, int hipoteca)
+{
+	int nivel,a=1, b=2, c=3;
+		if(((historico==1)&&(moroso==1))||((hipoteca>sueldo*0.30)))
+			{
+				nivel=a;
+				cout<<"Riesgo alto: "<<nivel;
+			}
+		else
+			if(((historico==0)&&(hipoteca<sueldo*0.20))||((historico==1)&&(moroso==0)&&(hipoteca<sueldo*0.30)))
+				{
+					nivel=b;
+					cout<<"Riesgo medio: "<<nivel;
+			}
+			else
+				{
+					nivel=c;
+					cout<<"Riesgo bajo: "<<nivel;
+			}
+		return nivel;
+}
+
