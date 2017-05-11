@@ -1,0 +1,277 @@
+// Tipo de Tierra.cpp : Defines the entry point for the console application.
+//
+
+#include "stdafx.h"
+#include<iostream>
+#include "conio.h"
+#include <string>
+#include "stdio.h"
+#include "stdlib.h"
+
+using namespace std;
+
+void ALTA_SECUENCIAL(void);
+void CONSULTA_SECUENCIAL(void);
+void LISTADO_SECUENCIAL(void);
+void MODIFICACION_SECUENCIAL(void);
+void BAJA_LOGICA_SECUENCIAL(void);
+
+struct tipo_registro
+{
+	int cod_prod;
+	string descrip; 
+	int num_plant;
+	char plantaciones;
+
+};
+tipo_registro Registro;
+FILE *alias;
+
+void main()
+{
+	int opcion;
+	do{
+		cout<<"-----------------MENU-----------------"<<endl;
+		cout<<"1. Para adicionar un terreno"<<endl;
+		cout<<"2. Para hacer un listado de los terrenos"<<endl;
+		cout<<"3. Para modificar los terrenos"<<endl;
+		cout<<"4. Para dar de baja un terreno"<<endl,
+			cout<<"0. Para terminar el programa"<<endl;
+		cout<<"Digite su opcion: ";
+		cin>>opcion;
+		switch(opcion)
+		{
+		case 1:
+			{
+				ALTA_SECUENCIAL();
+				break;
+			}
+		case 2:
+			{
+				LISTADO_SECUENCIAL();
+				break;
+			}
+		case 3:
+			{
+				MODIFICACION_SECUENCIAL();
+				break;
+			}
+		case 4:
+			{
+				BAJA_LOGICA_SECUENCIAL();
+				break;
+			}
+		case 0:
+			{
+				cout<<"Fin programa"<<endl;
+				break;
+			}
+		default:
+			{
+				cout<<"Opcion invalida ingrese de nuevo"<<endl;
+				break;
+			}
+		}
+	}while(opcion!=0);
+	getch();
+}
+void ALTA_SECUENCIAL(void) 
+{ 
+	int cod_prod;
+	cout << "\n\rALTAS DE REGISTROS DE PRODUCTOS"; 
+	alias=fopen("PRODUCTO.SEC","rb+"); 
+	if(alias==NULL) 
+		alias=fopen("PRODUCTO.SEC","wb"); 
+	cout << "\n\n\n\rNumero de terreno: ";
+	cin >> cod_prod; 
+	fread(&Registro,sizeof(Registro),1,alias); 
+	while(!feof(alias)) 
+	{ 
+		if(Registro.cod_prod==cod_prod) 
+		{ 
+			cout << "\n\n\n\rTerreno duplicado !!!"; 
+			fclose(alias); 
+			getch(); 
+			return; 
+		} 
+		fread(&Registro,sizeof(Registro),1,alias); 
+	}     
+	cout << "\n\rDescripcion: "; 
+	cin.ignore();
+	getline(cin,Registro.descrip);
+	cout << "\n\rNumero de plantaciones para este campo   : "; 
+	cin >> Registro.num_plant; 
+	do 
+	{ 
+		cout << "\n\rTuvo plantaciones anteriores   : "; 
+		Registro.plantaciones=toupper(getche()); 
+	}while(Registro.plantaciones!='S' && Registro.plantaciones!='N'); 
+	Registro.cod_prod=cod_prod; 
+	fwrite(&Registro,sizeof(Registro),1,alias); 
+	fclose(alias); 
+	cout << "\n\n\n\rProducto registrado !!!"; 
+	cout << "\n\r<<< Oprima cualquier tecla para continuar >>>"; 
+	getch(); 
+	return; 
+} 
+/*void CONSULTA_SECUENCIAL(void) 
+{ 
+int no_prod; 
+system("cls"); 
+cout << "\n\rCONSULTA DE REGISTROS DE PRODUCTOS"; 
+alias=fopen("PRODUCTO.SEC","rb"); 
+if(alias==NULL) 
+{ 
+cout << "\n\n\n\rNo existe el archivo !!!"; 
+cout << "\n\r<<< Oprima cualquier tecla para continuar >>>"; 
+getch(); 
+return; 
+} 
+cout << "\n\n\n\rNumero de producto: "; cin >> no_prod; 
+fread(&Registro,sizeof(Registro),1,alias); 
+while(!feof(alias))  
+{ 
+if(Registro.cod_prod==no_prod) 
+{ 
+cout << "\n\rCodigo de Producto        Descripcion    Numero de plataciones       Precio del mercado     Pesticidas"; 
+cout << "\n\r------------------------------------------------------------------------"<<endl; 
+cout<<Registro.cod_prod<<"                "<<Registro.descrip<<"            "<<Registro.num_plant<<"      "<<Registro.precio<<"       "<<Registro.pesticida<<endl; 
+fclose(alias); 
+cout << "\n\r<<< Oprima cualquier tecla para continuar >>>"; 
+getch(); 
+return; 
+} 
+fread(&Registro,sizeof(Registro),1,alias); 
+} 
+cout << "\n\rNo se encuentra ese registro !!!"; 
+fclose(alias); 
+cout << "\n\r<<< Oprima cualquier tecla para continuar >>>"; 
+getch(); 
+return; 
+} */
+void LISTADO_SECUENCIAL(void) 
+{ 
+	cout << "\n\rLISTADO DE REGISTROS DE PRODUCTOS"; 
+	alias=fopen("PRODUCTO.SEC","rb"); 
+	if(alias==NULL) 
+	{ 
+		cout << "\n\n\n\rNo existe el archivo !!!"; 
+		cout << "\n\r<<< Oprima cualquier tecla para continuar >>>"; 
+		getch(); 
+		return; 
+	} 
+	cout << "\n\rCodigo de Producto        Descripcion    Numero de plataciones           Plantaciones Anteriores"; 
+	cout << "\n\r------------------------------------------------------------------------"<<endl; 
+	fread(&Registro,sizeof(Registro),1,alias); 
+	while(!feof(alias)) 
+	{ 
+		cout<<Registro.cod_prod<<"                "<<Registro.descrip<<"            "<<Registro.num_plant<<"            "<<Registro.plantaciones<<endl;
+		fread(&Registro,sizeof(Registro),1,alias); 
+	} 
+	fclose(alias);
+	cout << "\n\r------------------------------------------------------------------------"; 
+	cout << "\n\rFin del listado !!!"; 
+	cout << "\n\r<<< Oprima cualquier tecla para continuar >>>"; 
+	getch(); 
+	return; 
+}
+
+void MODIFICACION_SECUENCIAL(void) 
+{ 
+	int cod_prod; 
+	system("cls"); 
+	cout << "\n\rMODIFICACION DE REGISTROS DE PRODUCTOS"; 
+	alias=fopen("PRODUCTO.SEC","rb+"); 
+	if(alias==NULL)
+	{ 
+		cout << "\n\n\n\rNo existe el archivo !!!"; 
+		cout << "\n\r<<< Oprima cualquier tecla para continuar >>>"; 
+		getch(); 
+		return; 
+	} 
+	cout << "\n\n\n\rNumero de producto: "; cin >> cod_prod; 
+	fread(&Registro,sizeof(Registro),1,alias); 
+	while(!feof(alias))
+	{ 
+		if(Registro.cod_prod==cod_prod) 
+		{ 
+			cout << "\n\rCodigo de Producto        Descripcion    Numero de plataciones           Plantaciones anteriores"; 
+			cout << "\n\r------------------------------------------------------------------------"<<endl; 
+			cout<<Registro.cod_prod<<"                "<<Registro.descrip<<"            "<<Registro.num_plant<<"             "<<Registro.plantaciones<<endl; 
+			cout << "\n\n\n\rAnote los nuevos datos ..."; 
+			cout << "\n\rDescripcion: "; 
+			cin.ignore();
+			getline(cin,Registro.descrip); 
+			cout << "\n\rCantidad   : "; 
+			cin >> Registro.num_plant; 
+			do 
+			{ 
+				cout << "\n\rTuvo plantaciones anteriores   : "; 
+				Registro.plantaciones=toupper(getche()); 
+			}while(Registro.plantaciones!='S' && Registro.plantaciones!='N'); 
+			fseek(alias,ftell(alias)-sizeof(Registro),SEEK_SET); 
+			fwrite(&Registro,sizeof(Registro),1,alias);  
+			fclose(alias);
+			cout << "\n\n\n\rRegistro modificado !!!"; 
+			cout << "\n\r<<< Oprima cualquier tecla para continuar >>>"; 
+			getch(); 
+			return; 
+		} 
+		fread(&Registro,sizeof(Registro),1,alias); 
+	} 
+	cout << "\n\rNo se encuentra ese registro !!!"; 
+	fclose(alias); 
+	cout << "\n\r<<< Oprima cualquier tecla para continuar >>>"; 
+	getch(); 
+	return; 
+} 
+void BAJA_LOGICA_SECUENCIAL(void) 
+{ 
+	int cod_prod; 
+	char op; 
+	system("cls"); 
+	cout << "\n\rBAJAS LOGICAS DE REGISTROS DE PRODUCTOS"; 
+	alias=fopen("PRODUCTO.SEC","rb+"); 
+	if(alias==NULL)  
+	{ 
+		cout << "\n\n\n\rNo existe el archivo !!!"; 
+		cout << "\n\r<<< Oprima cualquier tecla para continuar >>>"; 
+		getch(); 
+		return; 
+	} 
+	cout << "\n\n\n\rNumero de producto: "; cin >> cod_prod; 
+	fread(&Registro,sizeof(Registro),1,alias); 
+	while(!feof(alias)) 
+	{ 
+		if(Registro.cod_prod==cod_prod) 
+		{ 
+			cout << "\n\rCodigo de Producto        Descripcion    Numero de plataciones           Plantaciones Anteriores"; 
+			cout << "\n\r------------------------------------------------------------------------"<<endl;
+			cout<<Registro.cod_prod<<"                "<<Registro.descrip<<"            "<<Registro.num_plant<<"             "<<Registro.plantaciones<<endl; 
+			Registro.cod_prod=0; 
+			Registro.descrip=""; 
+			Registro.num_plant=0; 
+			Registro.plantaciones=' '; 
+			do { 
+				cout << "\n\n\rEsta seguro que desea borrarlo? [S/N] ---> "; 
+				op=toupper(getche()); 
+			}while(op!='S' && op!='N'); 
+			if(op=='S') 
+			{ 
+				fseek(alias,ftell(alias)-sizeof(Registro),SEEK_SET);      
+				fwrite(&Registro,sizeof(Registro),1,alias);   
+				cout << "\n\n\n\rRegistro eliminado !!!"; 
+			} 
+			fclose(alias);   
+			cout << "\n\r<<< Oprima cualquier tecla para continuar >>>"; 
+			getch(); 
+			return; 
+		} 
+		fread(&Registro,sizeof(Registro),1,alias); 
+	} 
+	cout << "\n\rNo se encuentra ese registro !!!"; 
+	fclose(alias); 
+	cout << "\n\r<<< Oprima cualquier tecla para continuar >>>"; 
+	getch(); 
+	return; 
+}
