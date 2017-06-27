@@ -1,277 +1,1212 @@
-// Tipo de Tierra.cpp : Defines the entry point for the console application.
-//
-
 #include "stdafx.h"
-#include<iostream>
+#include <iostream>
 #include "conio.h"
-#include <string>
-#include "stdio.h"
-#include "stdlib.h"
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <math.h> 
+#include <string> 
 
 using namespace std;
 
-void ALTA_SECUENCIAL(void);
-void CONSULTA_SECUENCIAL(void);
-void LISTADO_SECUENCIAL(void);
-void MODIFICACION_SECUENCIAL(void);
-void BAJA_LOGICA_SECUENCIAL(void);
+//Variables globales
+int idusuarioAct=0;
+string usuarioAct="";
 
-struct tipo_registro
-{
-	int cod_prod;
-	string descrip; 
-	int num_plant;
-	char plantaciones;
 
+//Estructuras
+struct Usuario{
+	int idusuario;
+	char cuenta[30];
+	char clave[30];
+	char nombre[50];
+	int telf;
+	char email[50];
+	char estado;
+	
 };
-tipo_registro Registro;
-FILE *alias;
+struct Semilla{
+	int idsemilla;
+	char nombre[30];
+	float precio;
+	float tratamiento ;
+	float costo ;
+	float cantidadbuena ;
+	float cantidadmala ;
+	int idusuario ;
+	char estado;
+	
+};
 
-void main()
-{
-	int opcion;
+//Prototipos
+
+void caratula();
+bool soloEspacio( char cad[] );
+bool soloLetras( char cad[] );
+bool nombreValido( char cad[] );
+void addDoblepuntos( char cad[] );
+bool esNro( char cad[] );
+bool esDecimal( char cad[] );
+void eliminarCaracter( char cad[] );
+void separar( char cad[], int &d, int &m, int &a );
+bool esLetraoNro( char cad[] );
+bool esEmail( char cad[] );
+void addSpace( char cad[] );
+void completar( char cad[] );
+bool existeSemilla(int id);
+Semilla ObtenerSemilla(int id);
+bool Email_Correcto( char cad[] );
+void adicionarUsuarioTxt( char cad[] );
+void crearReporteUsuarioTxt();
+void adicionarSemillaTxt( char cad[] );
+void crearReporteSemillaTxt();
+void adicionarUsuario();
+void borrarUsuario( int nroReg );
+void modificarUsuario( int nroReg );
+void reporteUsuario();
+void reporteUsuarioTxt();
+char* IMPnombreUsuario( int idusuario);
+void buscarUsuario( int nroReg);
+void menuUsuario();
+void adicionarSemilla();
+void borrarSemilla( int nroReg );
+void modificarSemilla( int nroReg );
+void reporteSemilla();
+void reporteSemillaTxt();
+void buscarSemilla( int nroReg);
+void menuSemillas();
+void Calculos();
+void iniciarsesion();
+
+//Main
+void main(){
+	caratula();
+	char cad[10];
+	int op=-1;
 	do{
-		cout<<"-----------------MENU-----------------"<<endl;
-		cout<<"1. Para adicionar un terreno"<<endl;
-		cout<<"2. Para hacer un listado de los terrenos"<<endl;
-		cout<<"3. Para modificar los terrenos"<<endl;
-		cout<<"4. Para dar de baja un terreno"<<endl,
-			cout<<"0. Para terminar el programa"<<endl;
-		cout<<"Digite su opcion: ";
-		cin>>opcion;
-		switch(opcion)
-		{
-		case 1:
-			{
-				ALTA_SECUENCIAL();
-				break;
+		cout << "\n\n\n\n==============================================================================";
+		cout << "\n			*** M E N U    P R I N C I P A L ***";
+		cout << "\n------------------------------------------------------------------------------";
+		cout << "\n Usuario : " ;
+		printf("%s\n",usuarioAct.c_str());
+		cout << "\n------------------------------------------------------------------------------";
+		cout << "\n\n\t\t\t 1 .-  Usuarios ";
+		cout << "\n\n\t\t\t 2 .-  Iniciar Sesion ";
+		cout << "\n\n\t\t\t 3 .-  Semillas ";
+		cout << "\n\n\t\t\t 4 .-  Calculos ";
+		cout << "\n\n\t\t\t 5 .-  Salir ";
+		cout << "\n\n\t\t Seleccione el archivo con el cual quiere trabajar : ";
+
+		do{
+			gets(cad);
+			op=atoi(cad);
+			
+			if((op>5) ||(op<1))	{
+				cout <<"\nError...!!!!!  Debe ingresar un numero valido: ";
 			}
-		case 2:
-			{
-				LISTADO_SECUENCIAL();
-				break;
-			}
-		case 3:
-			{
-				MODIFICACION_SECUENCIAL();
-				break;
-			}
-		case 4:
-			{
-				BAJA_LOGICA_SECUENCIAL();
-				break;
-			}
-		case 0:
-			{
-				cout<<"Fin programa"<<endl;
-				break;
-			}
-		default:
-			{
-				cout<<"Opcion invalida ingrese de nuevo"<<endl;
-				break;
+			
+		}while(op<1 || op>5);
+
+
+		cout << endl;
+
+		switch (op){
+			case 1	: menuUsuario();
+					  break;
+			case 2  : iniciarsesion();
+					  break;
+
+
+			case 3  : menuSemillas();
+					  break;
+			case 4  : if (idusuarioAct!=0){	
+						Calculos();	
+						}else{
+							cout <<"\n Inicie sesion : ";
+						}	  
+				 
+					  break;
+		}
+	}while(op!=5);		
+}
+
+//Funciones
+void caratula(){
+	
+	cout<<"-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-";
+	cout<<"\n\t\t\t GRUPO: AgroPlant \n";
+	cout<<"-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-";
+	cout<<"\n INTEGRANTES:\n";
+	cout<<"\t\t\t Juan Carlos Cabello Hiza \n";
+	cout<<"\t\t\t Valeria Justiniano Nunez \n";
+	cout<<"\t\t\t Oscar Diego Ortiz Borda \n";
+	cout<<"-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-";
+}
+bool soloEspacio( char cad[] ){
+	bool k=true;
+	int v,n=strlen(cad);
+	for(v=0;v<n;v++){
+		if(cad[v]!=32){
+			k=false;v=n;
+		}
+	}
+	return(k);
+}
+bool soloLetras( char cad[] ){
+	int v,n=strlen(cad);bool k=true;
+	for(v=0;v<n;v++){
+		if((cad[v]<32) || (cad[v]>32 && cad[v]<65) || (cad[v]>90 && cad[v]<97) || (cad[v]>122)){
+			k=false;v=n;
+		}
+	}
+	return(k);
+}
+bool nombreValido( char cad[] ){
+	bool k=false;
+	if(soloEspacio(cad)==false && soloLetras(cad)==true){k=true;}
+	return(k);
+}
+void addDoblepuntos( char cad[] ){
+	int n=strlen(cad);
+	cad[n]=':';
+	cad[n+1]='\0';
+}
+
+bool esNro( char cad[] ){
+	bool k=true;
+	int v,n=strlen(cad);
+	for(v=0;v<n;v++){
+		if(int(cad[v])<48 || int(cad[v])>57){
+			k=false;
+		}
+	}
+	return(k);
+}
+
+bool esDecimal( char cad[] ){
+	bool k=true;
+	int v,n=strlen(cad);
+	for(v=0;v<n;v++){
+		if(int(cad[v])<48 || int(cad[v])>57){
+			if(int(cad[v])!=46 ){
+				k=false;
 			}
 		}
-	}while(opcion!=0);
-	getch();
+	}
+	return(k);
 }
-void ALTA_SECUENCIAL(void) 
-{ 
-	int cod_prod;
-	cout << "\n\rALTAS DE REGISTROS DE PRODUCTOS"; 
-	alias=fopen("PRODUCTO.SEC","rb+"); 
-	if(alias==NULL) 
-		alias=fopen("PRODUCTO.SEC","wb"); 
-	cout << "\n\n\n\rNumero de terreno: ";
-	cin >> cod_prod; 
-	fread(&Registro,sizeof(Registro),1,alias); 
-	while(!feof(alias)) 
-	{ 
-		if(Registro.cod_prod==cod_prod) 
-		{ 
-			cout << "\n\n\n\rTerreno duplicado !!!"; 
-			fclose(alias); 
-			getch(); 
-			return; 
-		} 
-		fread(&Registro,sizeof(Registro),1,alias); 
-	}     
-	cout << "\n\rDescripcion: "; 
-	cin.ignore();
-	getline(cin,Registro.descrip);
-	cout << "\n\rNumero de plantaciones para este campo   : "; 
-	cin >> Registro.num_plant; 
-	do 
-	{ 
-		cout << "\n\rTuvo plantaciones anteriores   : "; 
-		Registro.plantaciones=toupper(getche()); 
-	}while(Registro.plantaciones!='S' && Registro.plantaciones!='N'); 
-	Registro.cod_prod=cod_prod; 
-	fwrite(&Registro,sizeof(Registro),1,alias); 
-	fclose(alias); 
-	cout << "\n\n\n\rProducto registrado !!!"; 
-	cout << "\n\r<<< Oprima cualquier tecla para continuar >>>"; 
-	getch(); 
-	return; 
-} 
-/*void CONSULTA_SECUENCIAL(void) 
-{ 
-int no_prod; 
-system("cls"); 
-cout << "\n\rCONSULTA DE REGISTROS DE PRODUCTOS"; 
-alias=fopen("PRODUCTO.SEC","rb"); 
-if(alias==NULL) 
-{ 
-cout << "\n\n\n\rNo existe el archivo !!!"; 
-cout << "\n\r<<< Oprima cualquier tecla para continuar >>>"; 
-getch(); 
-return; 
-} 
-cout << "\n\n\n\rNumero de producto: "; cin >> no_prod; 
-fread(&Registro,sizeof(Registro),1,alias); 
-while(!feof(alias))  
-{ 
-if(Registro.cod_prod==no_prod) 
-{ 
-cout << "\n\rCodigo de Producto        Descripcion    Numero de plataciones       Precio del mercado     Pesticidas"; 
-cout << "\n\r------------------------------------------------------------------------"<<endl; 
-cout<<Registro.cod_prod<<"                "<<Registro.descrip<<"            "<<Registro.num_plant<<"      "<<Registro.precio<<"       "<<Registro.pesticida<<endl; 
-fclose(alias); 
-cout << "\n\r<<< Oprima cualquier tecla para continuar >>>"; 
-getch(); 
-return; 
-} 
-fread(&Registro,sizeof(Registro),1,alias); 
-} 
-cout << "\n\rNo se encuentra ese registro !!!"; 
-fclose(alias); 
-cout << "\n\r<<< Oprima cualquier tecla para continuar >>>"; 
-getch(); 
-return; 
-} */
-void LISTADO_SECUENCIAL(void) 
-{ 
-	cout << "\n\rLISTADO DE REGISTROS DE PRODUCTOS"; 
-	alias=fopen("PRODUCTO.SEC","rb"); 
-	if(alias==NULL) 
-	{ 
-		cout << "\n\n\n\rNo existe el archivo !!!"; 
-		cout << "\n\r<<< Oprima cualquier tecla para continuar >>>"; 
-		getch(); 
-		return; 
-	} 
-	cout << "\n\rCodigo de Producto        Descripcion    Numero de plataciones           Plantaciones Anteriores"; 
-	cout << "\n\r------------------------------------------------------------------------"<<endl; 
-	fread(&Registro,sizeof(Registro),1,alias); 
-	while(!feof(alias)) 
-	{ 
-		cout<<Registro.cod_prod<<"                "<<Registro.descrip<<"            "<<Registro.num_plant<<"            "<<Registro.plantaciones<<endl;
-		fread(&Registro,sizeof(Registro),1,alias); 
-	} 
-	fclose(alias);
-	cout << "\n\r------------------------------------------------------------------------"; 
-	cout << "\n\rFin del listado !!!"; 
-	cout << "\n\r<<< Oprima cualquier tecla para continuar >>>"; 
-	getch(); 
-	return; 
+void eliminarCaracter( char cad[] ){
+	int n=strlen(cad);
+	strrev(cad);
+	cad[n-3]='\0';
+	strrev(cad);
+}
+void separar( char cad[], int &d, int &m, int &a ){
+	d=atoi(cad);
+	eliminarCaracter(cad);
+	m=atoi(cad);
+	eliminarCaracter(cad);
+	a=atoi(cad);
+}
+bool esLetraoNro( char cad[] ){
+	bool k=true;
+	int v,n=strlen(cad);
+	for(v=0;v<n;v++){
+		if(int(cad[v])<48 || int(cad[v])>57){
+			if(int(cad[v])<65 || int(cad[v])>90){
+				if(int(cad[v])<97 || int(cad[v])>122){
+					k=false;
+				}
+			}
+		}
+	}
+	return(k);
 }
 
-void MODIFICACION_SECUENCIAL(void) 
-{ 
-	int cod_prod; 
-	system("cls"); 
-	cout << "\n\rMODIFICACION DE REGISTROS DE PRODUCTOS"; 
-	alias=fopen("PRODUCTO.SEC","rb+"); 
-	if(alias==NULL)
-	{ 
-		cout << "\n\n\n\rNo existe el archivo !!!"; 
-		cout << "\n\r<<< Oprima cualquier tecla para continuar >>>"; 
-		getch(); 
-		return; 
-	} 
-	cout << "\n\n\n\rNumero de producto: "; cin >> cod_prod; 
-	fread(&Registro,sizeof(Registro),1,alias); 
-	while(!feof(alias))
-	{ 
-		if(Registro.cod_prod==cod_prod) 
-		{ 
-			cout << "\n\rCodigo de Producto        Descripcion    Numero de plataciones           Plantaciones anteriores"; 
-			cout << "\n\r------------------------------------------------------------------------"<<endl; 
-			cout<<Registro.cod_prod<<"                "<<Registro.descrip<<"            "<<Registro.num_plant<<"             "<<Registro.plantaciones<<endl; 
-			cout << "\n\n\n\rAnote los nuevos datos ..."; 
-			cout << "\n\rDescripcion: "; 
-			cin.ignore();
-			getline(cin,Registro.descrip); 
-			cout << "\n\rCantidad   : "; 
-			cin >> Registro.num_plant; 
-			do 
-			{ 
-				cout << "\n\rTuvo plantaciones anteriores   : "; 
-				Registro.plantaciones=toupper(getche()); 
-			}while(Registro.plantaciones!='S' && Registro.plantaciones!='N'); 
-			fseek(alias,ftell(alias)-sizeof(Registro),SEEK_SET); 
-			fwrite(&Registro,sizeof(Registro),1,alias);  
-			fclose(alias);
-			cout << "\n\n\n\rRegistro modificado !!!"; 
-			cout << "\n\r<<< Oprima cualquier tecla para continuar >>>"; 
-			getch(); 
-			return; 
-		} 
-		fread(&Registro,sizeof(Registro),1,alias); 
-	} 
-	cout << "\n\rNo se encuentra ese registro !!!"; 
-	fclose(alias); 
-	cout << "\n\r<<< Oprima cualquier tecla para continuar >>>"; 
-	getch(); 
-	return; 
-} 
-void BAJA_LOGICA_SECUENCIAL(void) 
-{ 
-	int cod_prod; 
-	char op; 
-	system("cls"); 
-	cout << "\n\rBAJAS LOGICAS DE REGISTROS DE PRODUCTOS"; 
-	alias=fopen("PRODUCTO.SEC","rb+"); 
-	if(alias==NULL)  
-	{ 
-		cout << "\n\n\n\rNo existe el archivo !!!"; 
-		cout << "\n\r<<< Oprima cualquier tecla para continuar >>>"; 
-		getch(); 
-		return; 
-	} 
-	cout << "\n\n\n\rNumero de producto: "; cin >> cod_prod; 
-	fread(&Registro,sizeof(Registro),1,alias); 
-	while(!feof(alias)) 
-	{ 
-		if(Registro.cod_prod==cod_prod) 
-		{ 
-			cout << "\n\rCodigo de Producto        Descripcion    Numero de plataciones           Plantaciones Anteriores"; 
-			cout << "\n\r------------------------------------------------------------------------"<<endl;
-			cout<<Registro.cod_prod<<"                "<<Registro.descrip<<"            "<<Registro.num_plant<<"             "<<Registro.plantaciones<<endl; 
-			Registro.cod_prod=0; 
-			Registro.descrip=""; 
-			Registro.num_plant=0; 
-			Registro.plantaciones=' '; 
-			do { 
-				cout << "\n\n\rEsta seguro que desea borrarlo? [S/N] ---> "; 
-				op=toupper(getche()); 
-			}while(op!='S' && op!='N'); 
-			if(op=='S') 
-			{ 
-				fseek(alias,ftell(alias)-sizeof(Registro),SEEK_SET);      
-				fwrite(&Registro,sizeof(Registro),1,alias);   
-				cout << "\n\n\n\rRegistro eliminado !!!"; 
-			} 
-			fclose(alias);   
-			cout << "\n\r<<< Oprima cualquier tecla para continuar >>>"; 
-			getch(); 
-			return; 
-		} 
-		fread(&Registro,sizeof(Registro),1,alias); 
-	} 
-	cout << "\n\rNo se encuentra ese registro !!!"; 
-	fclose(alias); 
-	cout << "\n\r<<< Oprima cualquier tecla para continuar >>>"; 
-	getch(); 
-	return; 
+bool esEmail( char cad[] ){
+	bool k=true;
+	int v,n=strlen(cad);
+	for(v=0;v<n;v++){
+		if( (cad[v]<46) || (cad[v]>46&&cad[v]<64) || (cad[v]>64&&cad[v]<97) || (cad[v]>122) ){
+			k=false;
+		}
+	}
+	return(k);
 }
+
+void addSpace( char cad[] ){
+	int n=strlen(cad);
+	cad[n]=' ';
+	cad[n+1]='\0';
+}
+
+void completar( char cad[] ){
+	do{
+		addSpace(cad);
+	}while(strlen(cad)<15);
+}
+bool existeSemilla(int id){
+FILE *ptr;
+bool k=false;
+Semilla reg;
+ptr=fopen("semilla.dat","rb");
+    if(ptr!=NULL){
+	fread(&reg,sizeof(reg),1,ptr);
+     	while(feof(ptr)==false ){
+	    if(reg.estado=='A'){
+			if(reg.idsemilla==id){
+			k=true;
+		   }
+		}
+		fread(&reg,sizeof(reg),1,ptr);
+		}    
+ 	fclose(ptr);
+	}
+  return(k);
+}
+
+Semilla ObtenerSemilla(int id){
+FILE *ptr;
+Semilla reg;
+Semilla ret;
+ptr=fopen("semilla.dat","rb");
+    if(ptr!=NULL){
+	fread(&reg,sizeof(reg),1,ptr);
+     	while(feof(ptr)==false ){
+	    if(reg.estado=='A'){
+			if(reg.idusuario==idusuarioAct){
+			if(reg.idsemilla==id){
+				ret.idsemilla=reg.idsemilla;
+				int idsemilla;
+				strcpy(ret.nombre,reg.nombre);
+				ret.precio=reg.precio;
+				ret.tratamiento=reg.tratamiento;
+				ret.costo=reg.costo;
+				ret.cantidadbuena=reg.cantidadbuena;
+				ret.cantidadmala=reg.cantidadmala;
+				ret.idusuario=reg.idusuario;
+				ret.estado=reg.estado;
+			}
+			}
+		}
+		fread(&reg,sizeof(reg),1,ptr);
+		}    
+ 	fclose(ptr);
+	}
+  return ret;
+}
+
+bool Email_Correcto( char cad[] ){
+	int n = strlen(cad),i,c=0,j;
+	bool k=false;
+	if(cad[0]>='a' && cad[0]<='z'){
+		for(i=1;i<n;i++){
+			if(cad[i]=='@'){
+				c++;
+				j=i;
+			}
+		}
+		if(c==1){
+			while(j<n-1){
+				if(cad[j]=='.'){
+					k=true;
+				}
+				j++;
+			}
+		}
+	}
+	return k;
+}
+void adicionarUsuarioTxt( char cad[] ){
+	FILE*ptr;
+	ptr = fopen("usuario.txt","a");
+	fputs("\n",ptr);
+	fputs(cad,ptr);
+	
+	fclose(ptr);	
+}
+void crearReporteUsuarioTxt(){
+	char cad[300],aux[300];
+	int a,k=0;
+	FILE*ptr;
+	Usuario reg;
+	ptr = fopen("usuario.dat","rb");
+	if(ptr!=NULL){
+		remove("usuario.txt");
+		fread(&reg,sizeof(reg),1,ptr);
+		while(feof(ptr)==false){
+			k++;
+			if(reg.estado=='A'){
+				itoa(k,cad,10);
+				completar(cad);
+
+				itoa(reg.idusuario,aux,10);
+				completar(aux);
+				strcat(cad,aux);
+
+				
+				strcpy(aux,reg.cuenta);
+				completar(aux);
+				strcat(cad,aux);
+
+				
+				strcpy(aux,reg.nombre);
+				completar(aux);
+				strcat(cad,aux);
+
+				itoa(reg.telf,aux,10);
+				completar(aux);
+				strcat(cad,aux);
+
+
+				strcpy(aux,reg.email);
+				completar(aux);
+				strcat(cad,aux);
+				
+				adicionarUsuarioTxt(cad);
+			}
+			fread(&reg,sizeof(reg),1,ptr);
+		}		
+		fclose(ptr);
+	}else{
+		cout <<" El archivo no existe !!!!!!!!";
+	}
+}
+
+
+void adicionarSemillaTxt( char cad[] ){
+	FILE*ptr;
+	ptr = fopen("semilla.txt","a");
+	fputs("\n",ptr);
+	fputs(cad,ptr);
+	
+	fclose(ptr);	
+}
+void crearReporteSemillaTxt(){
+	char cad[300],aux[300];
+	int a,k=0;
+	float f; 
+	FILE*ptr;
+	Semilla reg;
+	ptr = fopen("semilla.dat","rb");
+	if(ptr!=NULL){
+		remove("semilla.txt");
+		fread(&reg,sizeof(reg),1,ptr);
+		while(feof(ptr)==false){
+			k++;
+			if(reg.estado=='A'){
+				if (reg.idusuario==idusuarioAct){
+					
+					itoa(k,cad,10);
+					completar(cad);
+
+					itoa(reg.idsemilla,aux,10);
+					completar(aux);
+					strcat(cad,aux);
+
+					strcpy(aux,reg.nombre);
+					completar(aux);
+					strcat(cad,aux);
+				
+					itoa(reg.precio,aux,10);
+					completar(aux);
+					strcat(cad,aux);
+
+					itoa(reg.tratamiento,aux,10);
+					completar(aux);
+					strcat(cad,aux);
+
+					itoa(reg.costo,aux,10);
+					completar(aux);
+					strcat(cad,aux);
+
+					itoa(reg.cantidadbuena,aux,10);
+					completar(aux);
+					strcat(cad,aux);
+
+					itoa(reg.cantidadmala,aux,10);
+					completar(aux);
+					strcat(cad,aux);
+
+					adicionarSemillaTxt(cad);
+				}
+			}
+			fread(&reg,sizeof(reg),1,ptr);
+		}		
+		fclose(ptr);
+	}else{
+		cout <<" El archivo no existe !!!!!!!!";
+	}
+}
+void adicionarUsuario(){
+	char cad[50];
+	FILE*ptr;
+	Usuario reg;
+
+	cout << " Introducir Id : ";
+	do{
+		gets(cad);
+		reg.idusuario=atoi(cad);
+		if( reg.idusuario<1 ){
+			cout <<"\nError...!!!\n El Id del usuario debe ser mayor a 1 : ";
+		}
+	}while(reg.idusuario==0 || reg.idusuario<1 );
+	cout << " Introducir Cuenta del usuario: ";
+	do{
+		gets(reg.cuenta);
+		if( nombreValido(reg.cuenta)==false ){
+			cout <<"\nError...!!!\nDebe introducir una cuenta correcta : ";
+		}
+	}while( nombreValido(reg.cuenta)==false );
+
+	cout << " Introducir clave del usuario: ";
+	do{
+		gets(reg.clave);
+		if( strlen(reg.clave) <1 ){
+			cout <<"\nError...!!!\nLa clave no puede estar vacia : ";
+		}
+	}while( strlen(reg.clave)  <1 );
+
+	cout << " Introducir nombre : ";
+	do{
+		gets(reg.nombre);
+		if( nombreValido(reg.nombre)==false ){
+			cout <<"\nError...!!!\nDebe introducir un nombre correcto : ";
+		}
+	}while( nombreValido(reg.nombre)==false );
+	
+	cout << " Introducir telefono del Usuario : ";
+	do{
+		gets(cad);
+		reg.telf=atoi(cad);
+		if( reg.telf<1 ){
+			cout <<"\nError...!!!   el telefno del Usuario debe ser mayor a 0 : ";
+		}
+	}while( reg.telf<1 );
+			
+	cout << " Introducir email del Usuario : \n";
+	
+	do{
+		gets(reg.email);
+		if( Email_Correcto(reg.email)==false ){
+			cout <<"\nError...!!!\nDebe introducir un email valido : ";
+		}
+	}while( Email_Correcto(reg.email)==false );
+	
+	reg.estado='A';
+	
+	ptr = fopen("usuario.dat","ab"); 
+	fwrite(&reg,sizeof(reg),1,ptr);
+	fclose(ptr);	
+}
+void borrarUsuario( int nroReg ){
+	char cad[20];
+	FILE*ptr;
+	Usuario reg;
+	int op;
+	ptr = fopen("usuario.dat","r+b");
+	if(ptr!=NULL){
+		fseek(ptr,(nroReg-1)*sizeof(reg),SEEK_SET);
+		fread(&reg,sizeof(reg),1,ptr);
+		if(feof(ptr)==false){
+		        if(reg.estado=='A'){
+					cout <<"\n"<<reg.idusuario<<"\t"<<reg.cuenta<<"\t"<<reg.nombre<<"\t"<<reg.telf<<"\t"<<reg.email<<"\n";
+					cout <<"\n 1.- Confirmar\n 2.- Cancelar\n";
+					cout <<" Selecione una opcion : ";
+					do{
+						do{
+							gets(cad);
+							op=atoi(cad);
+							if(op==0)	cout <<"\nError...!!!!!  Debe ingresar un numero : ";
+						}while(op==0);
+						if(op!=1 && op!=2)	cout <<" Seleccione una de las opciones ....!!!";
+					}while(op!=1 && op!=2);
+					if(op==1){
+						reg.estado='I';
+						fseek(ptr,(nroReg-1)*sizeof(reg),SEEK_SET);
+						fwrite(&reg,sizeof(reg),1,ptr);
+					  cout <<"El registro fue eliminado ";
+					}
+				}
+		}
+	fclose(ptr);
+	}else{
+		cout<<"el archivo no existe!!!!!";
+	}
+}
+void modificarUsuario( int nroReg ){
+	char cad[20];
+	FILE*ptr;
+	Usuario reg;
+	int op;
+	ptr = fopen("usuario.dat","r+b");
+	if(ptr!=NULL){
+		fseek(ptr,(nroReg-1)*sizeof(reg),SEEK_SET);
+		fread(&reg,sizeof(reg),1,ptr);
+		if(feof(ptr)==false){
+				cout <<"\n"<<reg.idusuario<<"\t"<<reg.cuenta<<"\t"<<reg.nombre<<"\t"<<reg.telf<<"\t"<<reg.email<<"\n";
+				cout <<"\n 1.- Confirmar\n 2.- Cancelar\n";
+				cout <<" Selecione una opcion : ";
+				do{				
+					do{
+						gets(cad);
+						op=atoi(cad);
+						if(op==0)	cout <<"\nError...!!!!!  Debe ingresar un numero : ";
+					}while(op==0);
+					if(op!=1 && op!=2)	cout <<" Seleccione una de las opciones ....!!!";
+				}while(op!=1 && op!=2);
+				if(op==1){
+
+					
+					cout << " Introducir Id : ";
+					do{
+						gets(cad);
+						reg.idusuario=atoi(cad);
+						if( reg.idusuario<1 ){
+							cout <<"\nError...!!!\n El Id del usuario debe ser mayor a 1 : ";
+						}
+					}while(reg.idusuario==0 || reg.idusuario<1 );
+					cout << " Introducir Cuenta del usuario: ";
+					do{
+						gets(reg.cuenta);
+						if( nombreValido(reg.cuenta)==false ){
+							cout <<"\nError...!!!\nDebe introducir una cuenta correcta : ";
+						}
+					}while( nombreValido(reg.cuenta)==false );
+
+					cout << " Introducir clave del usuario: ";
+					do{
+						gets(reg.clave);
+						if( strlen(reg.clave) <1 ){
+							cout <<"\nError...!!!\nLa clave no puede estar vacia : ";
+						}
+					}while( strlen(reg.clave)  <1 );
+
+					cout << " Introducir nombre : ";
+					do{
+						gets(reg.nombre);
+						if( nombreValido(reg.nombre)==false ){
+							cout <<"\nError...!!!\nDebe introducir un nombre correcto : ";
+						}
+					}while( nombreValido(reg.nombre)==false );
+	
+					
+					cout << " Introducir telefono del Usuario : ";
+					do{
+						gets(cad);
+						reg.telf=atoi(cad);
+						if( reg.telf<1 ){
+							cout <<"\nError...!!!   el telefno del Usuario debe ser mayor a 0 : ";
+						}
+					}while( reg.telf<1 );
+			
+					cout << " Introducir email del Usuario : \n";
+	
+					do{
+						gets(reg.email);
+						if( Email_Correcto(reg.email)==false ){
+							cout <<"\nError...!!!\nDebe introducir un email valido : ";
+						}
+					}while( Email_Correcto(reg.email)==false );
+	
+					reg.estado='A';
+
+					fseek(ptr,(nroReg-1)*sizeof(reg),SEEK_SET);
+					fwrite(&reg,sizeof(reg),1,ptr);
+				}
+			
+		}
+		fclose(ptr);
+	}
+}
+void reporteUsuario(){
+	FILE*ptr;
+	int c=0;
+	Usuario reg;
+	ptr = fopen("usuario.dat","rb");
+	if(ptr!=NULL){
+		cout << "\n\n====================================================================================";
+		cout << "\n--------------------------------REPORTE DE USUARIOS-----------------------------------";
+		cout << "\n-------------------------------------------------------------------------------------";
+		cout << "\nNroReg \tIdUsuario \tCuenta \tNombre \tTelefono \tEmail ";
+		cout << "\n-------------------------------------------------------------------------------------";
+		fread(&reg,sizeof(reg),1,ptr);
+
+		while(feof(ptr)==false){
+			c++;
+			if (reg.estado=='A'){
+				cout <<"\n"<<c<<"\t"<<reg.idusuario<<"\t"<<reg.cuenta<<"\t"<<reg.nombre<<"\t"<<reg.telf<<"\t"<<reg.email;
+			}
+			fread(&reg,sizeof(reg),1,ptr);
+		}
+		cout << "\n------------------------------------------------------------------------------------";
+		fclose(ptr);
+	}else{
+		cout <<" El archivo no existe !!!!!!!!";
+	}
+}
+void reporteUsuarioTxt(){
+	crearReporteUsuarioTxt();
+	FILE*ptr;	
+	char cad[300];
+	ptr = fopen("usuario.txt","r");
+	if(ptr!=NULL){
+		cout << "\n\n====================================================================================";
+		cout << "\n				         	REPORTE DE USUARIOS						";
+		cout << "\n-------------------------------------------------------------------------------------";
+		cout << "\nNroReg \tIdUsuario \tCuenta \tNombre \tTelefono \tEmail ";
+		cout << "\n-------------------------------------------------------------------------------------";
+		fgets(cad,sizeof(cad),ptr);
+
+		while(feof(ptr)==false){
+			cout <<cad;
+			fgets(cad,sizeof(cad),ptr);
+		}
+		cout <<cad;
+		cout << "\n------------------------------------------------------------------------------------";
+		fclose(ptr);
+	}else{
+		cout <<" El archivo no existe !!!!!!!!";
+	}
+}
+
+
+char* IMPnombreUsuario( int idusuario){
+	FILE *ptr;
+	Usuario reg;
+	static char str[30];
+	ptr = fopen("usuario.dat","rb");  // abre archivo en modo lectura
+	if(ptr != NULL ){		
+		
+		fread(&reg,sizeof(reg),1,ptr);
+		while(feof(ptr)==false)
+		{
+			if (reg.idusuario==idusuario)
+			{
+					
+					
+					strcpy(str, reg.nombre);
+					return str;
+					
+			}
+			fread(&reg,sizeof(reg),1,ptr);
+		}
+		fclose(ptr);
+		
+	}else{
+		cout << "\nArchivo no existe...!!!\n";
+	}	
+	return strcpy(str, "");
+}
+
+void buscarUsuario( int nroReg){
+	FILE *ptr;
+	Usuario reg;	
+	ptr = fopen("usuario.dat","rb");  // abre archivo en modo lectura
+	if(ptr != NULL ){		
+		fseek(ptr,(nroReg - 1)*sizeof(reg),SEEK_SET);//mueve el puntero al registro que se busca
+		fread(&reg,sizeof(reg),1,ptr);  //lee registro desde archivo binario
+		if(feof(ptr) == false){
+			
+				cout <<"\n----------------------------------------------------------";
+				cout <<"\n\tEl Registro buscado es --->>";
+				cout <<"\n"<<"\t"<<reg.idusuario<<"\t"<<reg.cuenta<<"\t"<<reg.nombre<<"\t"<<reg.telf<<"\t"<<reg.email<<"\t"<<reg.estado;
+				cout <<"\n----------------------------------------------------------";
+			
+		}else{
+			cout << "\nRegistro no existe...!!!\n";
+		}
+	}else{
+		cout << "\nArchivo no existe...!!!\n";
+	}	
+}
+
+void menuUsuario(){
+	char cad[10];
+	int op,nroReg;
+	do{
+		cout << endl<<endl<<"==============================================================================";
+		cout << endl<<"	     ***M E N U     U S U A R I O***";
+		cout << endl<<"------------------------------------------------------------------------------";
+		cout << endl<<endl<<"\t\t 1 .-  Adicionar Usuario ";
+		cout << endl<<endl<<"\t\t 2 .-  Borrar Usuario ";
+		cout << endl<<endl<<"\t\t 3 .-  Modificar Usuario ";
+		cout << endl<<endl<<"\t\t 4 .-  Reporte de Usuarios ";
+		cout << endl<<endl<<"\t\t 5 .-  Reporte de Usuarios tipo texto ";
+		cout << endl<<endl<<"\t\t 6 .-  Buscar directamente Usuario por numero de registro ";
+		cout << endl<<endl<<"\t\t 9 .-  Atras ";
+		cout << endl<<endl<<"\t\t Seleccione una opcion : ";
+		do{
+			do{
+			gets(cad);
+			}while(strlen(cad)==0);
+			op=atoi(cad);
+			if(op==0)	cout <<"\nError...!!!!!  Debe ingresar un numero : ";
+		}while(op==0);
+		cout << endl;
+		switch (op){
+			case 1  : adicionarUsuario();
+					  break;
+			case 2  : cout <<"Ingresar numero de registro del Usuario para eliminar : ";
+					  cin >>nroReg;
+					  borrarUsuario(nroReg);
+					  break;
+			case 3  : cout <<"Ingresar numero de registro del Usuario para modificar : ";
+					  cin >>nroReg;
+					  modificarUsuario(nroReg);
+					  break;
+			case 4  : reporteUsuario();
+					  break;
+			case 5  :  reporteUsuarioTxt();
+					  break;
+			case 6  : cout <<"Ingresar numero de registro del Usuario para buscar : ";
+					  cin >>nroReg;
+					  buscarUsuario(nroReg);
+					  break;
+		}
+	}while (op!=9);		
+}
+
+void adicionarSemilla(){
+	
+	char cad[20];
+	FILE*ptr;
+	Semilla reg;
+
+	cout << " Introducir Id de Semilla: ";
+	do{
+		gets(cad);
+		reg.idsemilla=atoi(cad);
+		if(reg.idsemilla<1){
+			cout <<"\nError...!!!\n El Id de la semilla debe ser mayor a 0 : ";
+		}
+	}while(reg.idsemilla<1);
+	cout << " Introducir nombre : ";
+	do{
+		gets(reg.nombre);
+		if( nombreValido(reg.nombre)==false ){cout <<"\nError...!!!\nDebe introducir nombre de la semilla: ";}
+	}while( nombreValido(reg.nombre)==false );
+	
+	cout << " Introducir precio promedio : ";
+	do{
+		gets(cad);
+		if( esDecimal(cad)==false ){cout <<"\nError...!!!\nDebe introducir un valor correcto: ";}
+	}while( esDecimal(cad)==false );
+	reg.precio=stof(cad);
+	
+	cout << " Introducir costo de tratamiento : ";
+	do{
+		gets(cad);
+		if( esDecimal(cad)==false ){cout <<"\nError...!!!\nDebe introducir un valor correcto: ";}
+	}while( esDecimal(cad)==false );
+	reg.tratamiento=stof(cad);
+	
+	
+	cout << " Introducir costo promedio de produccion  : ";
+	do{
+		gets(cad);
+		if( esDecimal(cad)==false ){cout <<"\nError...!!!\nDebe introducir un valor correcto: ";}
+	}while( esDecimal(cad)==false );
+	reg.costo=stof(cad);
+	
+	
+	cout << " Introducir cantidad de granos por hectarea de plantacion (una buena campania ) Tn : ";
+	do{
+		gets(cad);
+		if( esDecimal(cad)==false ){cout <<"\nError...!!!\nDebe introducir un valor correcto: ";}
+	}while( esDecimal(cad)==false );
+	reg.cantidadbuena =stof(cad);
+	
+	
+	cout << "  Introducir cantidad de granos por hectarea de plantacion (una mala campania ) Tn: ";
+	do{
+		gets(cad);
+		if( esDecimal(cad)==false ){cout <<"\nError...!!!\nDebe introducir un valor correcto: ";}
+	}while( esDecimal(cad)==false );
+	reg.cantidadmala=stof(cad);
+	
+	reg.idusuario=idusuarioAct;
+	reg.estado='A';
+	
+	ptr = fopen("semilla.dat","ab");
+	fwrite(&reg,sizeof(reg),1,ptr);
+	fclose(ptr);	
+	
+}
+void borrarSemilla( int nroReg ){
+	
+	char cad[20];
+	FILE*ptr;
+	Semilla reg;
+	int op;
+	ptr = fopen("semilla.dat","r+b");
+	if(ptr!=NULL){
+		fseek(ptr,(nroReg-1)*sizeof(reg),SEEK_SET);
+		fread(&reg,sizeof(reg),1,ptr);
+		if(feof(ptr)==false){
+			if(reg.estado='A'){
+				cout <<"\n\t"<<reg.idsemilla<<"\t"<<reg.nombre<<"\t"<<reg.precio<<"\t"<<reg.tratamiento<<"\t"<<reg.costo<<"\t"<<reg.cantidadbuena<<"\t"<<reg.cantidadmala;
+				cout <<"\n 1.- Confirmar\n 2.- Cancelar\n";
+				cout <<" Selecione una opcion : ";
+				do{
+					do{
+						gets(cad);
+						op=atoi(cad);
+						if(op==0)	cout <<"\nError...!!!!!  Debe ingresar un numero : ";
+					}while(op==0);
+					if(op!=1 && op!=2)	cout <<" Seleccione una de las opciones ....!!!";
+				}while(op!=1 && op!=2);
+						reg.estado='I';
+						fseek(ptr,(nroReg-1)*sizeof(reg),SEEK_SET);
+						fwrite(&reg,sizeof(reg),1,ptr);			
+			}else{
+				cout<<"el registro fue eliminado";
+			}
+		fclose(ptr);
+	}
+
+	}else{
+		cout<<"no existe el archivo";
+	}
+}
+void modificarSemilla( int nroReg ){
+	char cad[20];
+	FILE*ptr;
+	Semilla reg;
+	int op;
+	ptr = fopen("semilla.dat","r+b");
+	if(ptr!=NULL){
+		fseek(ptr,(nroReg-1)*sizeof(reg),SEEK_SET);
+		fread(&reg,sizeof(reg),1,ptr);
+		if(feof(ptr)==false){
+			if(reg.estado=='A'){
+				cout <<"\n\t"<<reg.idsemilla<<"\t"<<reg.nombre<<"\t"<<reg.precio<<"\t"<<reg.tratamiento<<"\t"<<reg.costo<<"\t"<<reg.cantidadbuena<<"\t"<<reg.cantidadmala;
+				cout <<"\n 1.- Confirmar\n 2.- Cancelar\n";
+				cout <<" Selecione una opcion : ";
+				do{
+					do{
+						gets(cad);
+						op=atoi(cad);
+						if(op==0)	cout <<"\nError...!!!!!  Debe ingresar un numero : ";
+					}while(op==0);
+					if(op!=1 && op!=2)	cout <<" Seleccione una de las opciones ....!!!";
+				}while(op!=1 && op!=2);
+				if(op==1){
+
+					cout << " Introducir Id de Semilla: ";
+					do{
+						gets(cad);
+						reg.idsemilla=atoi(cad);
+						if(reg.idsemilla<1){
+							cout <<"\nError...!!!\n El Id de la semilla debe ser mayor a 0 : ";
+						}
+					}while(reg.idsemilla<1);
+					cout << " Introducir nombre : ";
+					do{
+						gets(reg.nombre);
+						if( nombreValido(reg.nombre)==false ){cout <<"\nError...!!!\nDebe introducir nombre de la semilla: ";}
+					}while( nombreValido(reg.nombre)==false );
+	
+					cout << " Introducir precio promedio : ";
+					do{
+						gets(cad);
+						if( esDecimal(cad)==false ){cout <<"\nError...!!!\nDebe introducir un valor correcto: ";}
+					}while( esDecimal(cad)==false );
+					reg.precio=stof(cad);
+	
+					cout << " Introducir costo de tratamiento : ";
+					do{
+						gets(cad);
+						if( esDecimal(cad)==false ){cout <<"\nError...!!!\nDebe introducir un valor correcto: ";}
+					}while( esDecimal(cad)==false );
+					reg.tratamiento=stof(cad);
+	
+	
+					cout << " Introducir costo promedio de produccion  : ";
+					do{
+						gets(cad);
+						if( esDecimal(cad)==false ){cout <<"\nError...!!!\nDebe introducir un valor correcto: ";}
+					}while( esDecimal(cad)==false );
+					reg.costo=stof(cad);
+	
+	
+					cout << " Introducir cantidad de granos por hectarea de plantacion (una buena campania )  : ";
+					do{
+					gets(cad);
+						if( esDecimal(cad)==false ){cout <<"\nError...!!!\nDebe introducir un valor correcto: ";}
+					}while( esDecimal(cad)==false );
+					reg.cantidadbuena =stof(cad);
+	
+	
+					cout << "  Introducir cantidad de granos por hectarea de plantacion (una mala campania ) : ";
+					do{
+						gets(cad);
+						if( esDecimal(cad)==false ){cout <<"\nError...!!!\nDebe introducir un valor correcto: ";}
+					}while( esDecimal(cad)==false );
+					reg.cantidadmala=stof(cad);
+	
+					reg.idusuario=idusuarioAct;
+					reg.estado='A';
+					fseek(ptr,(nroReg-1)*sizeof(reg),SEEK_SET);
+					fwrite(&reg,sizeof(reg),1,ptr);
+
+				}
+			
+		}else{
+			cout<<"\nEl registro fue eliminado";
+			}
+		fclose(ptr);
+	}else{
+		cout<<"\nEl registro no existe";
+		}
+}else{
+	cout<<"\nNo existe archivo";
+	}
+}
+void reporteSemilla(){
+	FILE*ptr;
+	int c=0;
+	
+	Semilla reg;
+	ptr = fopen("semilla.dat","rb");
+	if(ptr!=NULL){
+		cout << "\n\n==================================================================================";
+		cout << "\n				   	REPORTE DE SEMILLAS";
+		cout << "\n-----------------------------------------------------------------------------------";
+		cout << "\nNroReg \tIdSemilla \tNombre \tPrecio Promedio \tCosto Tratamiento \tCosto produccion \tBuenaCampania  \tMalaCampania";
+		cout << "\n------------------------------------------------------------------------------------";
+		fread(&reg,sizeof(reg),1,ptr);
+
+		while(feof(ptr)==false){
+			c++;
+				if (reg.estado=='A'){
+					if (reg.idusuario==idusuarioAct){
+						cout <<"\n"<<c<<"\t"<<reg.idsemilla<<"\t"<<reg.nombre<<"\t"<<reg.precio<<"\t"<<reg.tratamiento<<"\t"<<reg.costo<<"\t"<<reg.cantidadbuena<<"\t"<<reg.cantidadmala;
+					}
+				}
+			fread(&reg,sizeof(reg),1,ptr);
+		}
+		cout << "\n-----------------------------------------------------------------------------------";
+		fclose(ptr);
+	}else{
+		cout <<" El archivo no existe !!!!!!!!";
+	}
+}
+void reporteSemillaTxt(){
+	crearReporteSemillaTxt();
+	FILE*ptr;	
+	char cad[300];
+	ptr = fopen("semilla.txt","r");
+	if(ptr!=NULL){
+		cout << "\n\n==================================================================================";
+		cout << "\n				   	REPORTE DE SEMILLAS";
+		cout << "\n-----------------------------------------------------------------------------------";
+		cout << "\nNroReg \tIdSemilla \tNombre \tPrecio Promedio \tCosto Tratamiento \tCosto produccion \tBuenaCampania  \tMalaCampania";
+		cout << "\n------------------------------------------------------------------------------------";
+		fgets(cad,sizeof(cad),ptr);
+
+		while(feof(ptr)==false){
+			cout <<cad;
+			fgets(cad,sizeof(cad),ptr);
+		}
+		cout <<cad;
+		cout << "\n------------------------------------------------------------------------------------";
+		fclose(ptr);
+	}else{
+		cout <<" El archivo no existe !!!!!!!!";
+	}
+} 
+
+
+void buscarSemilla( int nroReg){
+	FILE *ptr;
+	Semilla reg;	
+	ptr = fopen("semilla.dat","rb");  // abre archivo en modo lectura
+	if(ptr != NULL ){		
+		fseek(ptr,(nroReg - 1)*sizeof(reg),SEEK_SET);//mueve el puntero al registro que se busca
+		fread(&reg,sizeof(reg),1,ptr);  //lee registro desde archivo binario
+		if(feof(ptr) == false){
+			
+				cout <<"\n----------------------------------------------------------";
+				cout <<"\n\tEl Registro buscado es --->>";
+				cout <<"\n\t"<<reg.idsemilla<<"\t"<<reg.nombre<<"\t"<<reg.precio<<"\t"<<reg.tratamiento<<"\t"<<reg.costo<<"\t"<<reg.cantidadbuena<<"\t"<<reg.cantidadmala;
+				cout <<"\n----------------------------------------------------------";
+			
+		}else{
+			cout << "\nRegistro no existe...!!!\n";
+		}
+		fclose(ptr);
+	}else{
+		cout << "\nArchivo no existe...!!!\n";
+	}	
+	
+}
+
+void menuSemillas(){
+	char cad[10];
+	int op,nroReg;
+	do{
+		cout << endl<<endl<<"==============================================================================";
+		cout << endl<<"			*** M E N U    S E M I L L A S ***";
+		cout << endl<<"------------------------------------------------------------------------------";
+		cout << endl<<endl<<"\t\t 1 .-  Adicionar semilla ";
+		cout << endl<<endl<<"\t\t 2 .-	Borrar semilla ";
+		cout << endl<<endl<<"\t\t 3 .-  Modificar semilla ";
+		cout << endl<<endl<<"\t\t 4 .-  Reporte de semillas ";
+		cout << endl<<endl<<"\t\t 5 .-  Reporte de semillas tipo texto ";
+		cout << endl<<endl<<"\t\t 6 .-  Buscar directamente semilla por numero de registro ";
+		cout << endl<<endl<<"\t\t 9 .-  Atras ";
+		cout << endl<<endl<<"\t\t Seleccione una opcion : ";
+		do{
+			do{
+			gets(cad);
+			}while(strlen(cad)==0);
+			op=atoi(cad);
+			if(op==0)	cout <<"\nError...!!!!!  Debe ingresar un numero : ";
+		}while(op==0);
+		cout << endl;
+		switch (op){
+			case 1  :	if (idusuarioAct!=0){	
+							adicionarSemilla();
+						}else{
+							cout <<"\n Inicie sesion : ";
+						}	  
+						break;
+			case 2  : 
+						if (idusuarioAct!=0){	
+							cout <<"Ingresar numero de registro de la semilla para eliminar : ";
+							cin >>nroReg;
+							borrarSemilla(nroReg);
+						}else{
+							cout <<"\n Inicie sesion : ";
+						}
+					  break;
+			case 3  : 
+						if (idusuarioAct!=0){	
+							cout <<"Ingresar numero de registro de la semilla para modificar : ";
+							cin >>nroReg;
+							modificarSemilla(nroReg);
+						}else{
+							cout <<"\n Inicie sesion : ";
+						}
+					  break;
+			case 4  : if (idusuarioAct!=0){	
+							reporteSemilla();
+						}else{
+							cout <<"\n Inicie sesion : ";
+						}					  
+					  break;
+			case 5  : if (idusuarioAct!=0){	
+							reporteSemilla();
+						}else{
+							cout <<"\n Inicie sesion : ";
+						} 
+					  break;
+			case 6  : if (idusuarioAct!=0){	
+							cout <<"Ingresar numero de registro de la semilla para buscar : ";
+							cin >>nroReg;
+							buscarSemilla(nroReg);
+						}else{
+							cout <<"\n Inicie sesion : ";
+						} 
+					  break;
+		}
+	}while (op!=9);		
+}
+
+void Calculos(){
+	char cad[10];
+	int nroreg;
+	Semilla reg;
+ 	float di,bc,gb,mc,ct,cp,gbc,gmc;
+
+	cout <<"Ingresar id de la semilla : ";
+	do{
+	do{
+		gets(cad);
+		nroreg=atoi(cad);
+		if(nroreg<1){
+			cout <<"\nError...!!!\n El Id de la semilla debe ser mayor a 0 : ";
+		}
+	}while(nroreg<1);
+	if (existeSemilla(nroreg)==false){
+			cout <<"\nError...!!!\n No se encontro el Id de la semilla ingresado : ";
+	}
+	}while (existeSemilla(nroreg)==false);
+	reg=ObtenerSemilla(nroreg);
+	
+	cout << " Ingrese las dimensiones de la propiedad (Ha):  ";
+	do{
+		gets(cad);
+		if( esDecimal(cad)==false ){cout <<"\nError...!!!\nDebe introducir un valor correcto: ";}
+	}while( esDecimal(cad)==false );
+	di=stof(cad);
+	
+	cout << "\n Calculando .....  ";
+	bc=reg.cantidadbuena*di;
+	cout << "\n Granos a obtener del lote por plantación (buena cosecha) Tn:  "<<bc;
+	mc=reg.cantidadmala*di;
+	cout << "\n Granos a obtener del lote por plantación (Mala cosecha) Tn:  "<<mc;
+	cp=reg.costo*di;
+	cout << "\n Costo de producción:  "<<cp;
+	ct=reg.tratamiento*di;
+	cout << "\n Costo del tratamiento de fertilización:  "<<ct;
+	gbc=(bc*2*reg.precio)-reg.costo-reg.tratamiento;
+	cout << "\n Ganancia (con buena cosecha):   "<<gbc;
+	gmc=(mc*2*reg.precio)-reg.costo-reg.tratamiento;
+	cout << "\n Ganancia (con mala cosecha):   "<<gmc;
+	
+}
+
+
+void iniciarsesion(){
+
+	Usuario ing;
+	cout << " Introducir cuenta del usuario: ";
+	
+	do{
+		gets(ing.cuenta);
+		if( nombreValido(ing.cuenta)==false ){
+			cout <<"\nError...!!!\nDebe introducir una cuenta correcta : ";
+		}
+	}while( nombreValido(ing.cuenta)==false );
+
+	cout << " Introducir clave del usuario: ";
+	do{
+		gets(ing.clave);
+		if( strlen(ing.clave) <1 ){
+			cout <<"\nError...!!!\nLa clave no puede estar vacia : ";
+		}
+	}while( strlen(ing.clave)  <1 );
+
+
+	FILE *ptr;
+	bool k=false;
+	Usuario reg;
+	ptr=fopen("usuario.dat","rb");
+    if(ptr!=NULL){
+	fread(&reg,sizeof(reg),1,ptr);
+     	while(feof(ptr)==false ){
+//			cout << "\n\t "<<reg.cuenta<< "\t "<<ing.cuenta<< "\t "<<reg.clave<< "\t "<<ing.clave;
+			string cu =reg.cuenta;
+			string cu2 =ing.cuenta;
+			string cl =reg.clave;
+			string cl2 =ing.clave;
+			if(cu.compare(cu2)==0){
+				if(cl.compare(cl2)==0){
+					k=true;
+					idusuarioAct=reg.idusuario;
+					usuarioAct=reg.nombre;
+				}
+			}
+		fread(&reg,sizeof(reg),1,ptr);
+		}    
+ 	fclose(ptr);
+	}
+	if (k==false){
+		cout<<"\nUsuario o clave incorrecta.";
+	}
+
+}
+
+
